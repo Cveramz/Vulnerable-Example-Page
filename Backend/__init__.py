@@ -5,6 +5,7 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+
 # Conexión a la base de datos
 def get_db_connection():
     conn = sqlite3.connect("database.db")
@@ -50,16 +51,16 @@ def login():
     password = request.json.get("password")
     
     conn = get_db_connection()
-    # Consulta segura utilizando parámetros
-    result = conn.execute(
-        "SELECT * FROM users WHERE email = ? AND password = ?", (email, password)
-    ).fetchone()
+    # Consulta insegura concatenando directamente los valores de email y password
+    query = f"SELECT * FROM users WHERE email = '{email}' AND password = '{password}'"
+    result = conn.execute(query).fetchone()
     conn.close()
     
     if result:
         return jsonify({"message": "Login successful!"}), 200
     else:
         return jsonify({"message": "Invalid email or password."}), 401
+
 
 # Endpoint para crear un nuevo proyecto
 @app.route("/projects", methods=["POST"])
