@@ -32,6 +32,7 @@ def create_tables():
 def generate_endpoints_file():
     # Ruta completa al archivo endpoints.txt
     file_path = os.path.join(os.path.dirname(__file__), "endpoints.txt")
+    print(f"Generating endpoints.txt at {file_path}")
     
     # Crear el archivo en la ubicación esperada
     with open(file_path, "w") as file:
@@ -52,10 +53,6 @@ def generate_endpoints_file():
                 file.write(f"{url}\n")
                 seen.add(url)
 
-
-@app.before_first_request
-def before_first_request():
-    generate_endpoints_file()
 
 
 # Endpoint para crear un nuevo usuario
@@ -164,4 +161,5 @@ def delete_project(project_id):
 
 if __name__ == "__main__":
     create_tables()
+    generate_endpoints_file()
     app.run(debug=False)

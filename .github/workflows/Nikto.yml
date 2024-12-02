@@ -32,7 +32,7 @@ jobs:
           FLASK_ENV: development
 
       - name: Wait for Flask to start
-        run: sleep 10
+        run: sleep 6
 
       - name: List files in Backend directory
         run: |
@@ -59,10 +59,12 @@ jobs:
 
       - name: Run Nikto on custom endpoints
         run: |
+          echo "Starting Nikto scan..."
           while read url; do
             echo "Scanning $url"
             nikto -h "$url" >> nikto-output.txt
           done < Backend/endpoints.txt
+          echo "Nikto scan completed. Results:"
           cat nikto-output.txt
 
       - name: Stop Flask App
