@@ -60,12 +60,14 @@ jobs:
       - name: Run Nikto on custom endpoints
         run: |
           echo "Starting Nikto scan..."
+          > nikto-output.txt  # Reinicia el archivo de salida
           while read url; do
             echo "Scanning $url"
-            nikto -h "$url" >> nikto-output.txt
+            nikto -url "$url" >> nikto-output.txt
           done < Backend/endpoints.txt
           echo "Nikto scan completed. Results:"
           cat nikto-output.txt
+
 
       - name: Stop Flask App
         run: |
