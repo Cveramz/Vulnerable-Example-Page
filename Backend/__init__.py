@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import sqlite3
 from flask_cors import CORS
+from werkzeug.security import check_password_hash
 import re
 import os
 
@@ -72,18 +73,24 @@ def create_user():
 # Endpoint para login de usuario
 @app.route("/login", methods=["POST"])
 def login():
+    # Obtener datos del cuerpo de la solicitud
     email = request.json.get("email")
     password = request.json.get("password")
-    
+
+    if not email or not password:
+        return jsonify({"message": "Email and password are required."}), 400
+
+    # Conectar a la base de datos y buscar usuario
     conn = get_db_connection()
-    query = f"SELECT * FROM users WHERE email = '{email}' AND password = '{password}'"
-    result = conn.execute(query).fetchone()
+    query = "SELECT * FROM users WHERE email = ?"
+    user = conn.execute(query, (email,)).fetchone()
     conn.close()
-    
-    if result:
+
+    # Verificar si el usuario existe y la contraseña coincide
+    if user and check_password_hash(user["password"], password):
         return jsonify({"message": "Login successful!"}), 200
     else:
-        return jsonify({"message": "Invalid email or password."}), 401
+        return jsonify({"message": "Invalid credentials."}), 401
 
 # Endpoint para crear un nuevo proyecto
 @app.route("/projects", methods=["POST"])
