@@ -11,11 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Verifica el repositorio
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # Configura Python e instala dependencias
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -26,7 +24,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Backend/requirements.txt
 
-      # Ejecuta la aplicación Flask y genera endpoints.txt
       - name: Run Flask App
         run: |
           export FLASK_APP=Backend
@@ -37,8 +34,7 @@ jobs:
       - name: Wait for Flask to start
         run: sleep 10
 
-      # Verifica que endpoints.txt fue generado
-      - name: Debug: Check if endpoints.txt exists
+      - name: Check if endpoints.txt exists
         run: |
           if [ ! -f Backend/endpoints.txt ]; then
             echo "Error: Backend/endpoints.txt not found"
@@ -48,13 +44,11 @@ jobs:
             cat Backend/endpoints.txt
           fi
 
-      # Instala Nikto
       - name: Install Nikto
         run: |
           sudo apt-get update
           sudo apt-get install -y nikto
 
-      # Usa endpoints.txt para escanear con Nikto
       - name: Run Nikto on custom endpoints
         run: |
           while read url; do
@@ -63,12 +57,10 @@ jobs:
           done < Backend/endpoints.txt
           cat nikto-output.txt
 
-      # Detiene Flask
       - name: Stop Flask App
         run: |
           pkill -f "flask run"
 
-      # Guarda el reporte de Nikto
       - name: Upload Nikto Report
         uses: actions/upload-artifact@v3
         with:
