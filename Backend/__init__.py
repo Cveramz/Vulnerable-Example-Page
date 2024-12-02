@@ -52,6 +52,12 @@ def generate_endpoints_file():
                 file.write(f"{url}\n")
                 seen.add(url)
 
+
+@app.before_first_request
+def before_first_request():
+    generate_endpoints_file()
+
+
 # Endpoint para crear un nuevo usuario
 @app.route("/create_user", methods=["POST"])
 def create_user():
@@ -158,5 +164,4 @@ def delete_project(project_id):
 
 if __name__ == "__main__":
     create_tables()
-    generate_endpoints_file()
     app.run(debug=False)
