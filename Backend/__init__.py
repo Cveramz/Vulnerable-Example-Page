@@ -159,7 +159,10 @@ def delete_project(project_id):
 
     return jsonify({"message": "Project deleted successfully!"}), 200
 
+
+create_tables()
+generate_endpoints_file()
+
+
 if __name__ == "__main__":
-    create_tables()
-    generate_endpoints_file()
     app.run(debug=False)
