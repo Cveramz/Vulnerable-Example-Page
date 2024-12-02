@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 import sqlite3
 from flask_cors import CORS
 import re
+import os
 
 app = Flask(__name__)
 CORS(app)
@@ -27,10 +28,12 @@ def create_tables():
     conn.commit()
     conn.close()
 
-import re
-
 def generate_endpoints_file():
-    with open("endpoints.txt", "w") as file:
+    # Ruta completa al archivo endpoints.txt
+    file_path = os.path.join(os.path.dirname(__file__), "endpoints.txt")
+    
+    # Crear el archivo en la ubicación esperada
+    with open(file_path, "w") as file:
         seen = set()  # Evitar duplicados
         for rule in app.url_map.iter_rules():
             # Ignorar rutas de Flask internas (como /static/<path:filename>)
@@ -47,7 +50,6 @@ def generate_endpoints_file():
             if url not in seen:
                 file.write(f"{url}\n")
                 seen.add(url)
-
 
 # Endpoint para crear un nuevo usuario
 @app.route("/create_user", methods=["POST"])

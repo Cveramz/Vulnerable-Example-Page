@@ -32,7 +32,7 @@ jobs:
 
       - name: Extract Endpoints
         run: |
-          # Asegurarse de que el archivo endpoints.txt exista en la ubicación correcta
+          # Verificar si el archivo endpoints.txt existe
           if [ ! -f Backend/endpoints.txt ]; then
               echo "El archivo endpoints.txt no fue generado por el backend."
               echo "Contenido del directorio Backend:"
@@ -64,11 +64,11 @@ jobs:
           extracted_dir=$(tar -tzf arachni.tar.gz | head -1 | cut -f1 -d"/")
           echo "Directorio detectado: $extracted_dir"
           mv "$extracted_dir" arachni
-          # Ejecutar Arachni para cada endpoint
-          for endpoint in ${{ env.endpoints }}; do
+          # Escaneo de cada endpoint
+          while IFS= read -r endpoint; do
               echo "Escaneando endpoint: $endpoint"
               ./arachni/bin/arachni "$endpoint" --report-save-path="arachni_report_${endpoint//\//_}.afr"
-          done
+          done < Backend/endpoints.txt
 
       - name: Combine Arachni Reports
         run: |
