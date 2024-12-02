@@ -24,6 +24,14 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r Backend/requirements.txt
 
+      - name: Generate Endpoints File
+        run: |
+          python -c "
+          from Backend.__init__ import app, generate_endpoints_file
+          with app.app_context():
+              generate_endpoints_file()
+          "
+
       - name: Start Flask Application
         run: |
           python Backend/__init__.py --host=0.0.0.0 &
@@ -52,8 +60,8 @@ jobs:
           echo "Directorio detectado: $extracted_dir"
           mv "$extracted_dir" arachni
 
-          # Ejecutar Arachni con una dirección válida
-          ./arachni/bin/arachni http://0.0.0.0:5000 --report-save-path=arachni_report.zip
+          # Ejecutar Arachni usando el archivo de endpoints generado
+          ./arachni/bin/arachni --input-list=endpoints.txt --report-save-path=arachni_report.zip
 
       - name: Rename Arachni Report
         run: |
