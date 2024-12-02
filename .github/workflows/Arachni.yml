@@ -32,9 +32,11 @@ jobs:
 
       - name: Extract Endpoints
         run: |
-          # Verificar que el archivo de endpoints se haya generado
+          # Asegurarse de que el archivo endpoints.txt exista en la ubicación correcta
           if [ ! -f Backend/endpoints.txt ]; then
               echo "El archivo endpoints.txt no fue generado por el backend."
+              echo "Contenido del directorio Backend:"
+              ls Backend
               exit 1
           fi
           # Leer los endpoints y almacenarlos en una variable
@@ -65,7 +67,7 @@ jobs:
           # Ejecutar Arachni para cada endpoint
           for endpoint in ${{ env.endpoints }}; do
               echo "Escaneando endpoint: $endpoint"
-              ./arachni/bin/arachni "http://0.0.0.0:5000$endpoint" --report-save-path="arachni_report_${endpoint//\//_}.afr"
+              ./arachni/bin/arachni "$endpoint" --report-save-path="arachni_report_${endpoint//\//_}.afr"
           done
 
       - name: Combine Arachni Reports
