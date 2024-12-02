@@ -1,0 +1,52 @@
+name: Arachni DAST Analysis
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  dast_analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.10'
+
+      - name: Install Backend Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r Backend/requirements.txt
+
+      - name: Start Flask Application
+        run: |
+          python Backend/__init__.py &
+          echo $! > flask_pid.txt
+          sleep 10
+
+      - name: Run Arachni Scanner
+        run: |
+          sudo apt update
+          sudo apt install -y arachni
+          arachni http://127.0.0.1:5000 --output-file=arachni_report.afr
+
+      - name: Convert Arachni Report to HTML
+        run: |
+          arachni_reporter arachni_report.afr --reporter=html:outfile=arachni_report.html
+
+      - name: Upload Arachni Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: Arachni Security Report
+          path: arachni_report.html
+
+      - name: Stop Flask Application
+        if: always()
+        run: |
+          kill $(cat flask_pid.txt)
