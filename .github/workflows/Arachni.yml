@@ -32,9 +32,7 @@ jobs:
 
       - name: Run Arachni Scanner
         run: |
-          # Limpieza del entorno para liberar espacio
-          sudo apt-get clean
-          sudo rm -rf /var/lib/apt/lists/*
+          # Instalar dependencias necesarias para Arachni
           sudo apt update
           sudo apt install -y libcurl4 libxml2 libxslt-dev zlib1g-dev
 
@@ -55,17 +53,18 @@ jobs:
           mv "$extracted_dir" arachni
 
           # Ejecutar Arachni con una dirección válida
-          ./arachni/bin/arachni http://0.0.0.0:5000 --report-save-path=arachni_report.afr
+          ./arachni/bin/arachni http://0.0.0.0:5000 --report-save-path=arachni_report.zip
 
-      - name: Convert Arachni Report to HTML
+      - name: Rename Arachni Report
         run: |
-          ./arachni/bin/arachni_reporter arachni_report.afr --reporter=html:outfile=arachni_report.html
+          # Cambiar el nombre del archivo generado a un formato más claro
+          mv arachni_report.zip Arachni_Security_Report.zip
 
       - name: Upload Arachni Report
         uses: actions/upload-artifact@v3
         with:
           name: Arachni Security Report
-          path: arachni_report.html
+          path: Arachni_Security_Report.zip
 
       - name: Stop Flask Application
         if: always()
