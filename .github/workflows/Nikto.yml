@@ -60,24 +60,22 @@ jobs:
       - name: Run Nikto on custom endpoints
         run: |
           echo "Starting Nikto scan..."
-          while read url; do
-            echo "Scanning $url"
+          for url in $(cat Backend/endpoints.txt); do
+            echo "Scanning URL: $url"
             # Extraer host y ruta de la URL
             host_with_port=$(echo "$url" | awk -F/ '{print $3}')
             path="/$(echo "$url" | cut -d/ -f4-)"
-            # Si el path está vacío, establecerlo como "/"
-            if [ -z "$path" ] || [ "$path" = "/" ]; then
+            if [ -z "$path" ]; then
               path="/"
-            else
-              path="/$(echo "$path" | sed 's|^/||')"
             fi
             echo "Host and port: $host_with_port, Path: $path"
             echo "Results for $url" >> nikto-output.txt
             nikto -h "$host_with_port" -root "$path" >> nikto-output.txt
             echo "----------------------------------------" >> nikto-output.txt
-          done < Backend/endpoints.txt
+          done
           echo "Nikto scan completed. Results:"
           cat nikto-output.txt
+
 
       - name: Stop Flask App
         run: |
