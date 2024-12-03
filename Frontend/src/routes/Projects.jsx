@@ -24,11 +24,14 @@ import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import FileUploadIcon from '@mui/icons-material/FileUpload';
+import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
 import NavBar from '../components/NavBar';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
   const [anchorEl, setAnchorEl] = useState(null);
+  const [addMenuAnchorEl, setAddMenuAnchorEl] = useState(null);
   const [selectedProject, setSelectedProject] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
@@ -39,7 +42,6 @@ const Projects = () => {
     supervisor: ''
   });
 
-  // Cargar proyectos desde el backend al montar el componente
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -83,7 +85,7 @@ const Projects = () => {
         body: JSON.stringify(selectedProject),
       });
       if (response.ok) {
-        fetchProjects(); // Actualizar la lista de proyectos
+        fetchProjects();
         handleEditClose();
       }
     } catch (error) {
@@ -97,7 +99,7 @@ const Projects = () => {
         method: "DELETE",
       });
       if (response.ok) {
-        fetchProjects(); // Actualizar la lista de proyectos
+        fetchProjects();
         handleMenuClose();
       }
     } catch (error) {
@@ -105,9 +107,23 @@ const Projects = () => {
     }
   };
 
-  // Funciones para manejar el diálogo de agregar nuevo proyecto
-  const handleAddOpen = () => {
+  const handleAddMenuOpen = (event) => {
+    setAddMenuAnchorEl(event.currentTarget);
+  };
+
+  const handleAddMenuClose = () => {
+    setAddMenuAnchorEl(null);
+  };
+
+  const handleAddManually = () => {
+    handleAddMenuClose();
     setAddDialogOpen(true);
+  };
+
+  const handleUploadFile = () => {
+    handleAddMenuClose();
+    // Aquí puedes manejar la lógica para cargar un archivo
+    console.log("Cargar archivo seleccionado");
   };
 
   const handleAddClose = () => {
@@ -130,7 +146,7 @@ const Projects = () => {
         body: JSON.stringify(newProject),
       });
       if (response.ok) {
-        fetchProjects(); // Actualizar la lista de proyectos
+        fetchProjects();
         handleAddClose();
       }
     } catch (error) {
@@ -168,7 +184,7 @@ const Projects = () => {
                 boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
                 transition: 'transform 0.3s ease',
               }}
-              onClick={handleAddOpen}
+              onClick={handleAddMenuOpen}
             >
               Agregar Proyecto
             </Button>
@@ -207,62 +223,21 @@ const Projects = () => {
         </div>
       </div>
 
-      {/* Menú desplegable de acciones */}
-      <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-        <MenuItem onClick={handleEditOpen}>
-          <EditIcon fontSize="small" /> Editar
+      {/* Menú de agregar proyecto */}
+      <Menu
+        anchorEl={addMenuAnchorEl}
+        open={Boolean(addMenuAnchorEl)}
+        onClose={handleAddMenuClose}
+      >
+        <MenuItem onClick={handleAddManually}>
+          <PlaylistAddIcon style={{ marginRight: '10px' }} /> Agregar manualmente
         </MenuItem>
-        <MenuItem onClick={handleDeleteProject}>
-          <DeleteIcon fontSize="small" /> Eliminar
+        <MenuItem onClick={handleUploadFile}>
+          <FileUploadIcon style={{ marginRight: '10px' }} /> Cargar desde archivo
         </MenuItem>
       </Menu>
 
-      {/* Diálogo para editar un proyecto */}
-      <Dialog open={editDialogOpen} onClose={handleEditClose}>
-        <DialogTitle>Editar Proyecto</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Nombre"
-            fullWidth
-            margin="dense"
-            value={selectedProject?.name || ''}
-            onChange={(e) => setSelectedProject({ ...selectedProject, name: e.target.value })}
-          />
-          <TextField
-            label="Tecnologías"
-            fullWidth
-            margin="dense"
-            value={selectedProject?.technologies || ''}
-            onChange={(e) => setSelectedProject({ ...selectedProject, technologies: e.target.value })}
-          />
-          <TextField
-            label="Descripción"
-            fullWidth
-            multiline
-            rows={3}
-            margin="dense"
-            value={selectedProject?.description || ''}
-            onChange={(e) => setSelectedProject({ ...selectedProject, description: e.target.value })}
-          />
-          <TextField
-            label="Supervisor"
-            fullWidth
-            margin="dense"
-            value={selectedProject?.supervisor || ''}
-            onChange={(e) => setSelectedProject({ ...selectedProject, supervisor: e.target.value })}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={handleEditClose} color="primary">
-            Cancelar
-          </Button>
-          <Button onClick={handleEditSave} color="primary">
-            Guardar
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Diálogo para agregar un nuevo proyecto */}
+      {/* Diálogo para agregar manualmente */}
       <Dialog open={addDialogOpen} onClose={handleAddClose}>
         <DialogTitle>Agregar Proyecto</DialogTitle>
         <DialogContent>
