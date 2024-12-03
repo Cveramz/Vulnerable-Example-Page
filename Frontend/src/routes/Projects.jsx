@@ -52,7 +52,7 @@ const Projects = () => {
 
   const fetchProjects = async () => {
     try {
-      const response = await fetch('https://devseccvr.alwaysdata.net/projects');
+      const response = await fetch('https://vulnerable-example-page.onrender.com/projects');
       const data = await response.json();
       setProjects(data);
     } catch (error) {
@@ -82,7 +82,7 @@ const Projects = () => {
   const handleEditSave = async () => {
     try {
       const response = await fetch(
-        `https://devseccvr.alwaysdata.net/projects/${selectedProject.id}`,
+        `https://vulnerable-example-page.onrender.com/projects/${selectedProject.id}`,
         {
           method: 'PUT',
           headers: {
@@ -103,7 +103,7 @@ const Projects = () => {
   const handleDeleteProject = async () => {
     try {
       const response = await fetch(
-        `https://devseccvr.alwaysdata.net/projects/${selectedProject.id}`,
+        `https://vulnerable-example-page.onrender.com/projects/${selectedProject.id}`,
         {
           method: 'DELETE',
         }
@@ -152,7 +152,7 @@ const Projects = () => {
 
   const handleAddSave = async () => {
     try {
-      const response = await fetch('https://devseccvr.alwaysdata.net/projects', {
+      const response = await fetch('https://vulnerable-example-page.onrender.com/projects', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
