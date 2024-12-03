@@ -30,7 +30,7 @@ const Login = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch("https://devseccvr.alwaysdata.net/login", {
+      const response = await fetch("https://vulnerable-example-page.onrender.com/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
