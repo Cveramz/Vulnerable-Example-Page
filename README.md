@@ -13,4 +13,4 @@ Each folder has its own README with detailed instructions and setup information 
 ## Deployment
 The project is deployed and accessible at the following URLs:
 - **Frontend**: [SwiftAura Frontend](https://swift.cveramz.cl)
-- **Backend**: (Fixed)
+- **Backend**: (Fixed - Using Render Service)
