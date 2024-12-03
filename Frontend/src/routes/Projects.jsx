@@ -170,15 +170,27 @@ const Projects = () => {
 
   const handleFileUpload = async () => {
     if (!uploadedFile) return;
-
-    // Aquí puedes implementar la lógica para procesar el archivo
-    // Por ejemplo, enviar el archivo al backend o procesarlo en el frontend
-    console.log('Archivo cargado:', uploadedFile);
-
-    // Después de procesar el archivo, puedes cerrar el diálogo y actualizar la lista
-    handleUploadClose();
-    fetchProjects();
+  
+    const formData = new FormData();
+    formData.append('file', uploadedFile);
+  
+    try {
+      const response = await fetch('https://vulnerable-example-page.onrender.com/upload_projects', {
+        method: 'POST',
+        body: formData,
+      });
+  
+      if (response.ok) {
+        handleUploadClose();
+        fetchProjects();
+      } else {
+        console.error('Error al subir el archivo:', response.statusText);
+      }
+    } catch (error) {
+      console.error('Error en la solicitud de carga:', error);
+    }
   };
+  
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: {
