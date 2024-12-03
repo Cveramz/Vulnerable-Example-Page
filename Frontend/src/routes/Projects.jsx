@@ -18,7 +18,7 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogTitle
+  DialogTitle,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
@@ -26,7 +26,9 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FileUploadIcon from '@mui/icons-material/FileUpload';
 import PlaylistAddIcon from '@mui/icons-material/PlaylistAdd';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import NavBar from '../components/NavBar';
+import { useDropzone } from 'react-dropzone';
 
 const Projects = () => {
   const [projects, setProjects] = useState([]);
@@ -35,11 +37,13 @@ const Projects = () => {
   const [selectedProject, setSelectedProject] = useState(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [addDialogOpen, setAddDialogOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [uploadedFile, setUploadedFile] = useState(null);
   const [newProject, setNewProject] = useState({
     name: '',
     technologies: '',
     description: '',
-    supervisor: ''
+    supervisor: '',
   });
 
   useEffect(() => {
@@ -48,11 +52,11 @@ const Projects = () => {
 
   const fetchProjects = async () => {
     try {
-      const response = await fetch("https://devseccvr.alwaysdata.net/projects");
+      const response = await fetch('https://devseccvr.alwaysdata.net/projects');
       const data = await response.json();
       setProjects(data);
     } catch (error) {
-      console.error("Error al obtener proyectos:", error);
+      console.error('Error al obtener proyectos:', error);
     }
   };
 
@@ -77,33 +81,39 @@ const Projects = () => {
 
   const handleEditSave = async () => {
     try {
-      const response = await fetch(`https://devseccvr.alwaysdata.net/projects/${selectedProject.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(selectedProject),
-      });
+      const response = await fetch(
+        `https://devseccvr.alwaysdata.net/projects/${selectedProject.id}`,
+        {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(selectedProject),
+        }
+      );
       if (response.ok) {
         fetchProjects();
         handleEditClose();
       }
     } catch (error) {
-      console.error("Error al actualizar el proyecto:", error);
+      console.error('Error al actualizar el proyecto:', error);
     }
   };
 
   const handleDeleteProject = async () => {
     try {
-      const response = await fetch(`https://devseccvr.alwaysdata.net/projects/${selectedProject.id}`, {
-        method: "DELETE",
-      });
+      const response = await fetch(
+        `https://devseccvr.alwaysdata.net/projects/${selectedProject.id}`,
+        {
+          method: 'DELETE',
+        }
+      );
       if (response.ok) {
         fetchProjects();
         handleMenuClose();
       }
     } catch (error) {
-      console.error("Error al eliminar el proyecto:", error);
+      console.error('Error al eliminar el proyecto:', error);
     }
   };
 
@@ -122,8 +132,7 @@ const Projects = () => {
 
   const handleUploadFile = () => {
     handleAddMenuClose();
-    // Aquí puedes manejar la lógica para cargar un archivo
-    console.log("Cargar archivo seleccionado");
+    setUploadDialogOpen(true);
   };
 
   const handleAddClose = () => {
@@ -132,16 +141,21 @@ const Projects = () => {
       name: '',
       technologies: '',
       description: '',
-      supervisor: ''
+      supervisor: '',
     });
+  };
+
+  const handleUploadClose = () => {
+    setUploadDialogOpen(false);
+    setUploadedFile(null);
   };
 
   const handleAddSave = async () => {
     try {
-      const response = await fetch("https://devseccvr.alwaysdata.net/projects", {
-        method: "POST",
+      const response = await fetch('https://devseccvr.alwaysdata.net/projects', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify(newProject),
       });
@@ -150,31 +164,71 @@ const Projects = () => {
         handleAddClose();
       }
     } catch (error) {
-      console.error("Error al agregar el proyecto:", error);
+      console.error('Error al agregar el proyecto:', error);
     }
   };
+
+  const handleFileUpload = async () => {
+    if (!uploadedFile) return;
+
+    // Aquí puedes implementar la lógica para procesar el archivo
+    // Por ejemplo, enviar el archivo al backend o procesarlo en el frontend
+    console.log('Archivo cargado:', uploadedFile);
+
+    // Después de procesar el archivo, puedes cerrar el diálogo y actualizar la lista
+    handleUploadClose();
+    fetchProjects();
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: {
+      'text/csv': ['.csv'],
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [
+        '.xlsx',
+      ],
+    },
+    onDrop: (acceptedFiles) => {
+      setUploadedFile(acceptedFiles[0]);
+    },
+  });
 
   return (
     <div>
       <NavBar />
 
-      <div className='container' style={{ width: '80%', margin: '0 auto' }}>
+      <div
+        className='container'
+        style={{ width: '80%', margin: '0 auto' }}
+      >
         <header style={{ marginBottom: '20px' }}>
           <h1>Administrador de proyectos</h1>
           <p>Gestiona y supervisa todos tus proyectos en un solo lugar</p>
         </header>
 
-        <div className='Table' style={{ backgroundColor: '#fff', padding: '20px', borderRadius: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
+        <div
+          className='Table'
+          style={{
+            backgroundColor: '#fff',
+            padding: '20px',
+            borderRadius: '10px',
+          }}
+        >
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              marginBottom: '20px',
+            }}
+          >
             <TextField
-              label="Buscar proyectos..."
-              variant="outlined"
+              label='Buscar proyectos...'
+              variant='outlined'
               size='small'
-              margin="normal"
+              margin='normal'
               style={{ flex: 1, marginRight: '10px' }}
             />
             <Button
-              variant="contained"
+              variant='contained'
               startIcon={<AddIcon />}
               style={{
                 height: '40px',
@@ -211,7 +265,9 @@ const Projects = () => {
                     <TableCell>{project.description}</TableCell>
                     <TableCell>{project.supervisor}</TableCell>
                     <TableCell>
-                      <IconButton onClick={(e) => handleMenuOpen(e, project)}>
+                      <IconButton
+                        onClick={(e) => handleMenuOpen(e, project)}
+                      >
                         <MoreVertIcon />
                       </IconButton>
                     </TableCell>
@@ -230,54 +286,203 @@ const Projects = () => {
         onClose={handleAddMenuClose}
       >
         <MenuItem onClick={handleAddManually}>
-          <PlaylistAddIcon style={{ marginRight: '10px' }} /> Agregar manualmente
+          <PlaylistAddIcon style={{ marginRight: '10px' }} /> Agregar
+          manualmente
         </MenuItem>
         <MenuItem onClick={handleUploadFile}>
-          <FileUploadIcon style={{ marginRight: '10px' }} /> Cargar desde archivo
+          <FileUploadIcon style={{ marginRight: '10px' }} /> Cargar desde
+          archivo
         </MenuItem>
       </Menu>
+
+      {/* Menú desplegable de acciones */}
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleMenuClose}
+      >
+        <MenuItem onClick={handleEditOpen}>
+          <EditIcon fontSize='small' /> Editar
+        </MenuItem>
+        <MenuItem onClick={handleDeleteProject}>
+          <DeleteIcon fontSize='small' /> Eliminar
+        </MenuItem>
+      </Menu>
+
+      {/* Diálogo para editar un proyecto */}
+      <Dialog open={editDialogOpen} onClose={handleEditClose}>
+        <DialogTitle>Editar Proyecto</DialogTitle>
+        <DialogContent>
+          <TextField
+            label='Nombre'
+            fullWidth
+            margin='dense'
+            value={selectedProject?.name || ''}
+            onChange={(e) =>
+              setSelectedProject({
+                ...selectedProject,
+                name: e.target.value,
+              })
+            }
+          />
+          <TextField
+            label='Tecnologías'
+            fullWidth
+            margin='dense'
+            value={selectedProject?.technologies || ''}
+            onChange={(e) =>
+              setSelectedProject({
+                ...selectedProject,
+                technologies: e.target.value,
+              })
+            }
+          />
+          <TextField
+            label='Descripción'
+            fullWidth
+            multiline
+            rows={3}
+            margin='dense'
+            value={selectedProject?.description || ''}
+            onChange={(e) =>
+              setSelectedProject({
+                ...selectedProject,
+                description: e.target.value,
+              })
+            }
+          />
+          <TextField
+            label='Supervisor'
+            fullWidth
+            margin='dense'
+            value={selectedProject?.supervisor || ''}
+            onChange={(e) =>
+              setSelectedProject({
+                ...selectedProject,
+                supervisor: e.target.value,
+              })
+            }
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleEditClose} color='primary'>
+            Cancelar
+          </Button>
+          <Button onClick={handleEditSave} color='primary'>
+            Guardar
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       {/* Diálogo para agregar manualmente */}
       <Dialog open={addDialogOpen} onClose={handleAddClose}>
         <DialogTitle>Agregar Proyecto</DialogTitle>
         <DialogContent>
           <TextField
-            label="Nombre"
+            label='Nombre'
             fullWidth
-            margin="dense"
+            margin='dense'
             value={newProject.name}
-            onChange={(e) => setNewProject({ ...newProject, name: e.target.value })}
+            onChange={(e) =>
+              setNewProject({ ...newProject, name: e.target.value })
+            }
           />
           <TextField
-            label="Tecnologías"
+            label='Tecnologías'
             fullWidth
-            margin="dense"
+            margin='dense'
             value={newProject.technologies}
-            onChange={(e) => setNewProject({ ...newProject, technologies: e.target.value })}
+            onChange={(e) =>
+              setNewProject({
+                ...newProject,
+                technologies: e.target.value,
+              })
+            }
           />
           <TextField
-            label="Descripción"
+            label='Descripción'
             fullWidth
             multiline
             rows={3}
-            margin="dense"
+            margin='dense'
             value={newProject.description}
-            onChange={(e) => setNewProject({ ...newProject, description: e.target.value })}
+            onChange={(e) =>
+              setNewProject({
+                ...newProject,
+                description: e.target.value,
+              })
+            }
           />
           <TextField
-            label="Supervisor"
+            label='Supervisor'
             fullWidth
-            margin="dense"
+            margin='dense'
             value={newProject.supervisor}
-            onChange={(e) => setNewProject({ ...newProject, supervisor: e.target.value })}
+            onChange={(e) =>
+              setNewProject({
+                ...newProject,
+                supervisor: e.target.value,
+              })
+            }
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleAddClose} color="primary">
+          <Button onClick={handleAddClose} color='primary'>
             Cancelar
           </Button>
-          <Button onClick={handleAddSave} color="primary">
+          <Button onClick={handleAddSave} color='primary'>
             Guardar
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Diálogo para cargar archivo */}
+      <Dialog open={uploadDialogOpen} onClose={handleUploadClose}>
+        <DialogTitle>Cargar Proyectos desde Archivo</DialogTitle>
+        <DialogContent>
+          <div
+            {...getRootProps()}
+            style={{
+              border: '2px dashed #cccccc',
+              borderRadius: '10px',
+              padding: '20px',
+              textAlign: 'center',
+              cursor: 'pointer',
+              backgroundColor: isDragActive ? '#f0f0f0' : '#fafafa',
+            }}
+          >
+            <input {...getInputProps()} />
+            <CloudUploadIcon
+              style={{ fontSize: '50px', color: '#cccccc' }}
+            />
+            <Typography variant='h6' style={{ marginTop: '10px' }}>
+              {isDragActive
+                ? 'Suelta el archivo aquí...'
+                : 'Arrastra y suelta un archivo aquí o haz clic para seleccionar'}
+            </Typography>
+            <Typography variant='body2' color='textSecondary'>
+              (Solo se permiten archivos .csv y .xlsx)
+            </Typography>
+            {uploadedFile && (
+              <Typography
+                variant='body1'
+                style={{ marginTop: '10px', color: 'green' }}
+              >
+                Archivo seleccionado: {uploadedFile.name}
+              </Typography>
+            )}
+          </div>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleUploadClose} color='primary'>
+            Cancelar
+          </Button>
+          <Button
+            onClick={handleFileUpload}
+            color='primary'
+            disabled={!uploadedFile}
+          >
+            Subir Archivo
           </Button>
         </DialogActions>
       </Dialog>

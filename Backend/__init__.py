@@ -4,6 +4,7 @@ from flask_cors import CORS
 from werkzeug.security import check_password_hash
 import re
 import os
+import pandas as pd
 
 app = Flask(__name__)
 CORS(app)
@@ -116,6 +117,51 @@ def create_project():
     conn.close()
 
     return jsonify({"message": "Project created successfully!"}), 201
+
+# Endpoint para cargar un archivo con proyectos
+@app.route("/upload_projects", methods=["POST"])
+def upload_projects():
+    if "file" not in request.files:
+        return jsonify({"message": "No file provided"}), 400
+
+    file = request.files["file"]
+
+    if not file:
+        return jsonify({"message": "No file selected"}), 400
+
+    filename = file.filename
+    ext = os.path.splitext(filename)[1].lower()
+
+    if ext not in [".csv", ".xlsx"]:
+        return jsonify({"message": "Unsupported file format"}), 400
+
+    try:
+        if ext == ".csv":
+            # Leer archivo CSV
+            df = pd.read_csv(file, sep=";")
+        elif ext == ".xlsx":
+            # Leer archivo Excel
+            df = pd.read_excel(file)
+
+        # Validar columnas esperadas
+        expected_columns = ["Nombre", "Tecnologías", "Descripción", "Supervisor"]
+        if not all(col in df.columns for col in expected_columns):
+            return jsonify({"message": f"Missing required columns. Expected {expected_columns}"}), 400
+
+        # Insertar los proyectos en la base de datos
+        conn = get_db_connection()
+        projects = df[expected_columns].values.tolist()  # Convertir a lista de listas
+        conn.executemany(
+            "INSERT INTO projects (name, technologies, description, supervisor) VALUES (?, ?, ?, ?)",
+            projects
+        )
+        conn.commit()
+        conn.close()
+
+        return jsonify({"message": "Projects uploaded successfully!"}), 201
+
+    except Exception as e:
+        return jsonify({"message": f"An error occurred: {str(e)}"}), 500
 
 # Endpoint para listar todos los proyectos
 @app.route("/projects", methods=["GET"])
