@@ -484,6 +484,11 @@ const Projects = () => {
               </Typography>
             )}
           </div>
+          <a href="https://docs.google.com/spreadsheets/d/13vELODzs8P8s7w7k09GrkxNaZMI4ELk1/edit?usp=drive_link&ouid=100172478635088095322&rtpof=true&sd=true" target="_blank" rel="noreferrer">
+            <Button style={{ marginTop: '20px' }} color='primary' variant='outlined'>
+              Ver formato de archivo
+            </Button>
+          </a>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleUploadClose} color='primary'>
